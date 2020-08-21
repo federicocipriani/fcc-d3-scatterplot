@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #f0f0f0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', sans-serif;
+}
+
+.container {
+    position: relative;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    max-height: 90vh;
+    min-width: 70vw;
+    border-radius: 1rem;
+    box-shadow: 4px 4px 10px 5px #dfdfdf;
+}
+
+#title {
+    font-size: 2.5rem;
+}
+
+#y-axis-grid {
+    stroke-dasharray: 0.1rem;
+    stroke-opacity: 0.3;
+}
+
+g {
+    font-family: 'Oswald', sans-serif;
+}
+
+#tooltip {
+    position: absolute;
+    background-color: white;
+    border: 0.05rem solid black;
+    max-height: 10rem;
+    max-width: 35%;
+    padding: 1rem;
+    font-size: 1.75rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+/* MEDIA QUERIES */
+
+@media only screen and (max-width: 1024px) {
+    .container {
+        width: 90vw;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 90vw;
+    }
+    #title {
+        font-size: 1.5rem;
+    }
+    #x_axis_label,
+    #y_axis_label {
+        font-size: 1.75rem;
+    }
+    #tooltip {
+        top: 35%;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+    }
+}
