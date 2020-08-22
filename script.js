@@ -1,4 +1,4 @@
-var margins = { right: 30, left: 80, top: 50, bottom: 50 };
+var margins = { right: 30, left: 80, top: 80, bottom: 50 };
 const canvasW = 900;
 const canvasH = 600;
 const svgW = canvasW - margins.left - margins.right;
@@ -9,10 +9,7 @@ const chart = svg
     .append('g')
     .attr('class', 'chart_area')
     .attr('transform', `translate(${margins.left},${margins.top})`);
-d3.select('.container')
-    .append('div')
-    .attr('id', 'tooltip')
-    .style('opacity', '0');
+d3.select('body').append('div').attr('id', 'tooltip').style('opacity', '0');
 
 fetch(
     'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json'
@@ -22,26 +19,35 @@ fetch(
     })
     .then((data) => {
         console.log(data);
-        const years = data.map((item) => item.Year);
-        const time = data.map((item) => {
-            let min_sec = item.Time.split(':');
-            return new Date(1970, 0, 1, 0, min_sec[0], min_sec[1]);
-        });
-
-        // console.log(years);
-        // console.log(time);
 
         // ---------------------------------------------------------
-        // Get min and max values
+        // Extract x and y values
+        const years = data.map((item) => item.Year);
+
+        var specifier = '%M:%S';
+        const time = data.map((item) => d3.timeParse(specifier)(item.Time));
+
+        // ---------------------------------------------------------
+        // Setup legend
+        const legend_val = data.map((item) =>
+            item.Doping !== '' ? true : false
+        );
+        var color = d3.scaleOrdinal().domain(legend_val).range(d3.schemeSet1);
+        console.log(color.domain());
+
+        // ---------------------------------------------------------
+        // Get min, max and range values
         var years_min = d3.min(years);
         var years_max = d3.max(years);
-        var time_min = d3.min(time);
-        var time_max = d3.max(time);
+        var years_range = years_max - years_min;
 
-        // console.log(years_min);
-        // console.log(years_max);
-        // console.log(time_min);
-        // console.log(time_max);
+        var specifier_minmax = '%M';
+        var time_min = d3.timeParse(specifier_minmax)(
+            d3.min(time).getMinutes()
+        );
+        var time_max = d3.timeParse(specifier_minmax)(
+            d3.max(time).getMinutes() + 1
+        );
 
         // ---------------------------------------------------------
         // Scaling the domain to the dimensions of the canvas
@@ -56,32 +62,22 @@ fetch(
             .range([svgH, 0]);
 
         // ---------------------------------------------------------
-        // Render the columns
-        chart
-            .selectAll('circle')
-            .data(time)
-            .enter()
-            .append('circle')
-            .attr('cx', (d, i) => xScale(years[i]))
-            .attr('cy', (d) => yScale(d))
-            .attr('r', (d) => 5)
-            .attr('fill', '#01a9b4')
-            .attr('data-xvalue', (d, i) => years[i])
-            .attr('data-yvalue', (d, i) => time[i])
-            .attr('class', 'dot');
-
-        // .on('mouseover', handleMouseover)
-        // .on('mouseout', handleMouseout);
+        // Create axes
+        var xAxis = d3
+            .axisBottom(xScale)
+            .ticks(years_range)
+            .tickFormat(d3.format('d'))
+            .tickPadding(10);
+        var yAxis = d3
+            .axisLeft(yScale)
+            .tickFormat((item) => d3.timeFormat(specifier)(item));
 
         // ---------------------------------------------------------
-        // Create axes and grid lines
-        var xAxis = d3.axisBottom(xScale).tickPadding(10);
-        var yAxis = d3.axisLeft(yScale);
-
+        // Create grid lines
         var xAxisGrid = d3
             .axisTop(xScale)
             .tickFormat('')
-            .ticks(0)
+            .ticks(years_range)
             .tickSize(-svgH);
 
         var yAxisGrid = d3.axisLeft(yScale).tickFormat('').tickSize(-svgW);
@@ -100,149 +96,101 @@ fetch(
             .attr('transform', 'translate(0,0)')
             .call(xAxisGrid);
 
+        // Fix chart graphical structure
+        chart
+            .select('#x-axis-top .domain')
+            .style('stroke-dasharray', '0')
+            .style('stroke-opacity', '0.3');
+        chart.select('#x-axis-top').select('.tick:first-of-type').remove();
+        chart.select('#x-axis-top').select('.tick:last-of-type').remove();
+
         chart.append('g').attr('id', 'y-axis').call(yAxis);
 
         chart.append('g').attr('id', 'y-axis-grid').call(yAxisGrid);
+        chart.select('#y-axis-grid .domain').remove();
+        chart.select('#y-axis-grid').select('.tick:first-of-type').remove();
+        chart.select('#y-axis-grid').select('.tick:last-of-type').remove();
+
+        // ---------------------------------------------------------
+        // Add legend to canvas
+        var legendBox = chart
+            .append('g')
+            .attr('id', 'legend')
+            .attr('stroke', 'black');
+        var legend_dots = d3
+            .select('#legend')
+            .selectAll('legend_dots')
+            .data(color.domain())
+            .enter()
+            .append('circle')
+            .attr('cx', (d, i) => svgW / 3.2 + i * 200)
+            .attr('cy', -30)
+            .attr('r', 10)
+            .attr('fill', (d) => color(d));
+        var legend_text = d3
+            .select('#legend')
+            .selectAll('legend_text')
+            .data(color.domain())
+            .enter()
+            .append('text')
+            .text((d) => (d ? 'Doping allegations' : 'No doping allegations'))
+            .attr('x', (d, i) => 20 + svgW / 3.2 + i * 200)
+            .attr('y', -30)
+            .style('alignment-baseline', 'central');
+
+        // ---------------------------------------------------------
+        // Render the dots
+        chart
+            .selectAll('circle')
+            .data(time)
+            .enter()
+            .append('circle')
+            .attr('cx', (d, i) => xScale(years[i]))
+            .attr('cy', (d) => yScale(d))
+            .attr('r', (d) => 10)
+            .attr('fill', (d, i) => color(legend_val[i]))
+            .attr('data-xvalue', (d, i) => years[i])
+            .attr('data-yvalue', (d, i) => time[i])
+            .attr('class', 'dot')
+            .on('mouseover', handleMouseover)
+            .on('mouseout', handleMouseout);
+
+        // ---------------------------------------------------------
+        // Functions
+        function handleMouseover(d, i) {
+            console.log(d3.event.pageX);
+            console.log(d3.event.pageX - xScale(years[i]));
+            let textbox = '';
+            d3.select(this).style('opacity', '1');
+            d3.select('#tooltip')
+                .transition()
+                .duration(0)
+                .style('opacity', '0.9')
+                .style('left', d3.event.pageX + 15 + 'px')
+                .style('top', d3.event.pageY + 15 + 'px')
+                .attr('data-year', years[i]);
+            d3.select('#tooltip').html(
+                '<strong>Athlete</strong>: ' +
+                    data[i].Name +
+                    '<br /><strong>Nationality</strong>: ' +
+                    data[i].Nationality +
+                    '<br />' +
+                    '<br /><strong>Place</strong>: ' +
+                    data[i].Place +
+                    '<br /><strong>Time</strong>: ' +
+                    data[i].Time +
+                    '<br /><strong>Year</strong>: ' +
+                    data[i].Year +
+                    '<br />' +
+                    '<br /><strong>Allegations</strong>: ' +
+                    (data[i].Doping !== '' ? data[i].Doping : 'No allegations')
+            );
+        }
+        function handleMouseout(d, i) {
+            d3.select(this).style('opacity', '0.7');
+            d3.select('#tooltip')
+                .transition()
+                .duration(0)
+                .style('opacity', '0');
+        }
     });
-// .then((dataset) => {
-//     var binLenght = svgW / dataset.data.length;
-
-//     // ---------------------------------------------------------
-//     // Arrays containing the x and y axis data
-//     const dates = dataset.data.map((item) => item[0]);
-//     const datesFormat = dates.map((item) => new Date(item));
-//     var gdp = dataset.data.map((item) => item[1]);
-
-//     // ---------------------------------------------------------
-//     // Get min and max values
-//     var date_min = d3.min(datesFormat);
-//     var date_max = d3.max(datesFormat);
-//     var gdp_min = d3.min(gdp);
-//     var gdp_max = d3.max(gdp);
-
-//     // ---------------------------------------------------------
-//     // Adjust max GDP value to get a better graph
-//     if (gdp_max % 2000 !== 0) {
-//         gdp_max = gdp_max - (gdp_max % 2000) + 2000;
-//     }
-
-//     // ---------------------------------------------------------
-//     // Adjust latest date to get a better graph
-//     var date_max_limit = new Date(date_max);
-//     date_max_limit.setMonth(date_max_limit.getMonth() + 3);
-
-//     // ---------------------------------------------------------
-//     // Scaling the domain to the dimensions of the canvas
-//     var xScale = d3
-//         .scaleTime()
-//         .domain([date_min, date_max_limit])
-//         .range([0, svgW]);
-
-//     var yScale = d3.scaleLinear().domain([0, gdp_max]).range([svgH, 0]);
-
-//     // ---------------------------------------------------------
-//     // Render the columns
-//     chart
-//         .selectAll('rect')
-//         .data(gdp)
-//         .enter()
-//         .append('rect')
-//         .attr('x', (d, i) => xScale(datesFormat[i]))
-//         .attr('y', (d) => yScale(d))
-//         .attr('width', binLenght)
-//         .attr('height', (d) => svgH - yScale(d))
-//         .attr('fill', '#01a9b4')
-//         .attr('data-date', (d, i) => dates[i])
-//         .attr('data-gdp', (d, i) => gdp[i])
-//         .attr('class', 'bar')
-//         .on('mouseover', handleMouseover)
-//         .on('mouseout', handleMouseout);
-
-//     // ---------------------------------------------------------
-//     // Add axes
-//     var xAxis = d3.axisBottom(xScale).tickPadding(8);
-//     var yAxis = d3.axisLeft(yScale);
-
-//     var xAxisGrid = d3
-//         .axisTop(xScale)
-//         .tickFormat('')
-//         .ticks(0)
-//         .tickSize(-svgH);
-
-//     var yAxisGrid = d3.axisLeft(yScale).tickFormat('').tickSize(-svgW);
-
-//     chart
-//         .append('g')
-//         .attr('id', 'x-axis')
-//         .attr('transform', 'translate(0,' + svgH + ')')
-//         .call(xAxis);
-
-//     chart
-//         .append('g')
-//         .attr('id', 'x-axis-top')
-//         .attr('transform', 'translate(0,0)')
-//         .call(xAxisGrid);
-
-//     chart.append('g').attr('id', 'y-axis').call(yAxis);
-
-//     chart.append('g').attr('id', 'y-axis-grid').call(yAxisGrid);
-
-//     // ---------------------------------------------------------
-//     // Add axes labels
-//     svg.append('text')
-//         .attr('id', 'y_axis_label')
-//         .text('Gross Domestic Product [billion $]')
-//         .attr('transform', 'rotate(-90)')
-//         .attr('x', -(svgH / 1.5 + margins.top))
-//         .attr('y', margins.left / 3);
-//     svg.append('text')
-//         .attr('id', 'x_axis_label')
-//         .text('Years')
-//         .attr('x', margins.left + svgW / 2.1)
-//         .attr('y', svgH * 1.22);
-
-//     // ---------------------------------------------------------
-//     // Calculate quarters
-//     var quarters = datesFormat.map((d) =>
-//         d.getMonth() === 0
-//             ? 'Q4'
-//             : d.getMonth() === 3
-//             ? 'Q1'
-//             : d.getMonth() === 6
-//             ? 'Q2'
-//             : d.getMonth() === 9
-//             ? 'Q3'
-//             : ''
-//     );
-//     var years = datesFormat.map((d) => d.getFullYear());
-
-//     // ---------------------------------------------------------
-//     // Functions
-//     function handleMouseover(d, i) {
-//         let textbox = '';
-//         d3.select(this).attr('opacity', '0.5');
-//         d3.select('#tooltip')
-//             .transition()
-//             .duration(0)
-//             .style('opacity', '0.7')
-//             .style('top', '35%')
-//             .style('left', '20%')
-//             .attr('data-date', dates[i]);
-//         d3.select('#tooltip').html(
-//             quarters[i] +
-//                 ' ' +
-//                 years[i] +
-//                 '<br /><strong>GDP = ' +
-//                 d.toFixed(1) +
-//                 '</strong>'
-//         );
-//     }
-//     function handleMouseout(d, i) {
-//         d3.select(this).attr('opacity', '1');
-//         d3.select('#tooltip')
-//             .transition()
-//             .duration(300)
-//             .style('opacity', '0');
-//         d3.select('#tooltip-text').remove();
-//     }
-// });
