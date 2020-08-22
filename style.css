@@ -81,8 +81,14 @@ g {
         width: 90vw;
     }
     #title {
-        font-size: 1.5rem;
+        font-size: 1rem;
+        text-align: center;
     }
+    #subtitle {
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
     #x_axis_label,
     #y_axis_label {
         font-size: 1.75rem;

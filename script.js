@@ -33,8 +33,8 @@ fetch(
 
         // ---------------------------------------------------------
         // Get min, max and range values
-        var years_min = d3.min(years);
-        var years_max = d3.max(years);
+        var years_min = d3.min(years) - 1;
+        var years_max = d3.max(years) + 1;
         var years_range = years_max - years_min;
 
         var specifier_minmax = '%M';
@@ -123,7 +123,11 @@ fetch(
 
         // ---------------------------------------------------------
         // Add legend to canvas
-        var legendBox = chart
+        // var legendBox = chart
+        //     .append('g')
+        //     .attr('id', 'legend')
+        //     .attr('stroke', 'black');
+        var legendBox = svg
             .append('g')
             .attr('id', 'legend')
             .attr('stroke', 'black');
@@ -133,8 +137,8 @@ fetch(
             .data(color.domain())
             .enter()
             .append('circle')
-            .attr('cx', (d, i) => svgW / 3.2 + i * 200)
-            .attr('cy', -30)
+            .attr('cx', (d, i) => svgW / 2.4 + i * 200)
+            .attr('cy', margins.top - 30)
             .attr('r', 10)
             .attr('fill', (d) => color(d));
         var legend_text = d3
@@ -144,8 +148,8 @@ fetch(
             .enter()
             .append('text')
             .text((d) => (d ? 'Doping allegations' : 'No doping allegations'))
-            .attr('x', (d, i) => 20 + svgW / 3.2 + i * 200)
-            .attr('y', -30)
+            .attr('x', (d, i) => 20 + svgW / 2.4 + i * 200)
+            .attr('y', margins.top - 30)
             .style('alignment-baseline', 'central');
 
         // ---------------------------------------------------------
