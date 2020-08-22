@@ -1,4 +1,4 @@
-var margins = { right: 30, left: 80, top: 80, bottom: 50 };
+var margins = { right: 30, left: 80, top: 80, bottom: 60 };
 const canvasW = 900;
 const canvasH = 600;
 const svgW = canvasW - margins.left - margins.right;
@@ -110,6 +110,20 @@ fetch(
         chart.select('#y-axis-grid .domain').remove();
         chart.select('#y-axis-grid').select('.tick:first-of-type').remove();
         chart.select('#y-axis-grid').select('.tick:last-of-type').remove();
+
+        // ---------------------------------------------------------
+        // Add axes labels
+        svg.append('text')
+            .attr('id', 'y_axis_label')
+            .text('Finish Time [min:sec]')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -(svgH / 1.7 + margins.top))
+            .attr('y', margins.left / 3);
+        svg.append('text')
+            .attr('id', 'x_axis_label')
+            .text('Years')
+            .attr('x', margins.left + svgW / 2.1)
+            .attr('y', svgH * 1.28);
 
         // ---------------------------------------------------------
         // Add legend to canvas
