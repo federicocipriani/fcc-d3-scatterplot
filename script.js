@@ -9,7 +9,6 @@ const chart = svg
     .append('g')
     .attr('class', 'chart_area')
     .attr('transform', `translate(${margins.left},${margins.top})`);
-d3.select('body').append('div').attr('id', 'tooltip').style('opacity', '0');
 
 fetch(
     'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json'
@@ -18,8 +17,6 @@ fetch(
         return res.json();
     })
     .then((data) => {
-        console.log(data);
-
         // ---------------------------------------------------------
         // Extract x and y values
         const years = data.map((item) => item.Year);
@@ -33,7 +30,6 @@ fetch(
             item.Doping !== '' ? true : false
         );
         var color = d3.scaleOrdinal().domain(legend_val).range(d3.schemeSet1);
-        console.log(color.domain());
 
         // ---------------------------------------------------------
         // Get min, max and range values
@@ -172,11 +168,9 @@ fetch(
         // ---------------------------------------------------------
         // Functions
         function handleMouseover(d, i) {
-            console.log(d3.event.pageX);
-            console.log(d3.event.pageX - xScale(years[i]));
-            let textbox = '';
             d3.select(this).style('opacity', '1');
-            d3.select('#tooltip')
+            var tooltip = d3.select('body').append('div').attr('id', 'tooltip');
+            tooltip
                 .transition()
                 .duration(0)
                 .style('opacity', '0.9')
@@ -202,9 +196,6 @@ fetch(
         }
         function handleMouseout(d, i) {
             d3.select(this).style('opacity', '0.7');
-            d3.select('#tooltip')
-                .transition()
-                .duration(0)
-                .style('opacity', '0');
+            d3.select('#tooltip').remove();
         }
     });

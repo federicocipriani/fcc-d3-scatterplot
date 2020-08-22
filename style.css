@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300&family=Open+Sans:wght@800&display=swap');
 
 * {
     margin: 0;
@@ -12,7 +12,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Open Sans Condensed', sans-serif;
 }
 
 .container {
@@ -31,10 +31,11 @@ body {
 
 #title {
     font-size: 2rem;
+    font-family: 'Open Sans', sans-serif;
 }
 
 #subtitle {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
 }
 
 #x-axis-top,
@@ -44,7 +45,7 @@ body {
 }
 
 g {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Open Sans Condensed', sans-serif;
 }
 
 .dot {
@@ -53,17 +54,16 @@ g {
 }
 
 #legend {
-    font-weight: 500;
+    font-family: 'Open Sans Condensed', sans-serif;
 }
 
 #tooltip {
     position: absolute;
     background-color: white;
     border: 0.05rem solid black;
-    /* max-height: 10rem; */
-    max-width: 30%;
+    max-width: 15rem;
     padding: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
     border-radius: 0.5rem;
     text-align: left;
 }
