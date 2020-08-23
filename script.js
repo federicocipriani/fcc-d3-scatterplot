@@ -161,7 +161,6 @@ fetch(
             .attr('data-yvalue', (d, i) => time[i])
             .attr('class', 'dot')
             .on('mouseover', handleMouseover)
-            .on('touchstart', handleMouseover)
             .on('mouseout', handleMouseout);
 
         // ---------------------------------------------------------
