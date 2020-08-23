@@ -64,7 +64,6 @@ body {
 
 #x-axis-top,
 #y-axis-grid {
-    -webkitstro
     stroke-dasharray: 0.1rem;
     stroke-opacity: 0.3;
 }

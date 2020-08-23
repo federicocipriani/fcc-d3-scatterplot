@@ -162,8 +162,7 @@ fetch(
             .attr('class', 'dot')
             .on('mouseover', handleMouseover)
             .on('touchstart', handleMouseover)
-            .on('mouseout', handleMouseout)
-            .on('touchend', handleMouseout);
+            .on('mouseout', handleMouseout);
 
         // ---------------------------------------------------------
         // Functions
