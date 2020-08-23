@@ -1,4 +1,4 @@
-var margins = { right: 30, left: 80, top: 80, bottom: 60 };
+var margins = { right: 30, left: 80, top: 70, bottom: 80 };
 const canvasW = 900;
 const canvasH = 600;
 const svgW = canvasW - margins.left - margins.right;
@@ -123,14 +123,7 @@ fetch(
 
         // ---------------------------------------------------------
         // Add legend to canvas
-        // var legendBox = chart
-        //     .append('g')
-        //     .attr('id', 'legend')
-        //     .attr('stroke', 'black');
-        var legendBox = svg
-            .append('g')
-            .attr('id', 'legend')
-            .attr('stroke', 'black');
+        var legendBox = svg.append('g').attr('id', 'legend');
         var legend_dots = d3
             .select('#legend')
             .selectAll('legend_dots')
@@ -140,7 +133,8 @@ fetch(
             .attr('cx', (d, i) => svgW / 2.4 + i * 200)
             .attr('cy', margins.top - 30)
             .attr('r', 10)
-            .attr('fill', (d) => color(d));
+            .attr('fill', (d) => color(d))
+            .attr('stroke', 'black');
         var legend_text = d3
             .select('#legend')
             .selectAll('legend_text')
@@ -173,6 +167,7 @@ fetch(
         // Functions
         function handleMouseover(d, i) {
             d3.select(this).style('opacity', '1');
+
             var tooltip = d3.select('body').append('div').attr('id', 'tooltip');
             tooltip
                 .transition()
