@@ -1,9 +1,12 @@
 # D3 Interactive Scatterplot
-### Scatterplot built using D3.js
+## Scatterplot built using D3.js
 
-Project created as an assignment for the FreeCodeCamp "Data Visualisation" certification
+### Technologies
+- D3.js
+- HTML
+- CSS
+- JavaScript
 
-### Link
-The current version of the scatterplot can be found at the link below. 
-
-[D3 Interactive Scatterplot on Netlify](https://fc-d3-doping-scatterplot.netlify.app/)
+### Description
+Project created as an assignment for the FreeCodeCamp "Data Visualisation" certification.
+It is possible to interact with the graph as each dot contains useful information and they are displayed with different tooltips.
